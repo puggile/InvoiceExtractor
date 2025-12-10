@@ -22,27 +22,37 @@ public static class InvoiceEndpoints
         IAiExtractorService aiService,
         ApplicationDbContext db,
         IInvoiceParser parser, 
-        IOptions<AiSettings> settings
+        IOptions<AiSettings> settings,
+        ILogger<InvoiceRecord> logger
         )
     {
         if (file.Length == 0)
+        {
+            logger.LogWarning("Upload attempt with empty file");
             return Results.BadRequest("Nessun file caricato");
+        }
+
+        logger.LogInformation("Starting analysis for file: {FileName} ({Size} bytes)", file.FileName, file.Length);
 
         // Basic extension validation
         var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
         var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
         if (!allowedExtensions.Contains(ext))
+        {
+            logger.LogWarning("Upload invalid format file: {ext}", ext);
             return Results.BadRequest("Formato non supportato. Usa JPG o PNG.");
-
+        }
+            
         string jsonResult;
         try
         {
             await using var stream = file.OpenReadStream();
             jsonResult = await aiService.ExtractDataAsync(stream, settings.Value.SystemPrompt);
+            logger.LogDebug("AI Response received. Length: {Length}", jsonResult.Length);
         }
         catch (Exception ex)
         {
-            // TODO logger
+            logger.LogError(ex, "AI Extraction failed for file {FileName}", file.FileName);
             return Results.Problem($"Errore durante l'analisi AI: {ex.Message}");
         }
 
@@ -59,6 +69,8 @@ public static class InvoiceEndpoints
 
         db.Invoices.Add(record);
         await db.SaveChangesAsync();
+
+        logger.LogInformation("Invoice saved successfully. ID: {Id}, Supplier: {Supplier}", record.Id, record.SupplierName);
 
         return Results.Ok(record);
     }

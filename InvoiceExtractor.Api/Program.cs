@@ -6,55 +6,80 @@ using Microsoft.EntityFrameworkCore;
 using Polly;
 using Polly.Extensions.Http;
 using Scalar.AspNetCore;
+using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
-// Config
-builder.Services.Configure<AiSettings>(builder.Configuration.GetSection("AiSettings"));
-
-// Database
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// AI Service + Polly
-var retryPolicy = HttpPolicyExtensions
-    .HandleTransientHttpError()
-    .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
-
-builder.Services.AddHttpClient<IAiExtractorService, OllamaService>()
-    .AddPolicyHandler(retryPolicy);
-
-builder.Services.AddSingleton<IInvoiceParser, InvoiceParser>();
-
-// Add services to the container.
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApi();
-
-var app = builder.Build();
-
-// Auto-Migration
-using (var scope = app.Services.CreateScope())
+try
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    try
-    {
-        dbContext.Database.Migrate();
-    }
-    catch
-    {
-         /* Log */
-    }
-}
+    Log.Information("Starting Invoice Extractor API...");
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+    var builder = WebApplication.CreateBuilder(args);
+
+    builder.Host.UseSerilog((context, services, configuration) => configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext());
+
+    // Config
+    builder.Services.Configure<AiSettings>(builder.Configuration.GetSection("AiSettings"));
+
+    // Database
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+    // AI Service + Polly
+    var retryPolicy = HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+
+    builder.Services.AddHttpClient<IAiExtractorService, OllamaService>()
+        .AddPolicyHandler(retryPolicy);
+
+    builder.Services.AddSingleton<IInvoiceParser, InvoiceParser>();
+
+    // Add services to the container.
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddOpenApi();
+
+    var app = builder.Build();
+
+    app.UseSerilogRequestLogging();
+
+    // Auto-Migration
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        try
+        {
+            dbContext.Database.Migrate();
+        }
+        catch
+        {
+            /* Log */
+        }
+    }
+
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapOpenApi();
+        app.MapScalarApiReference();
+    }
+
+    // Mapping Endpoints
+    app.MapInvoiceEndpoints();
+
+    //app.UseHttpsRedirection();
+    app.Run();
+}
+catch (Exception ex)
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference();
+    Log.Fatal(ex, "Application terminated unexpectedly");
 }
-
-// Mapping Endpoints
-app.MapInvoiceEndpoints();
-
-//app.UseHttpsRedirection();
-app.Run();
+finally
+{
+    Log.CloseAndFlush();
+}
