@@ -16,12 +16,14 @@ Designed with Vertical Slice Architecture principles and Cloud-Native readiness.
  
 ## ✨ Flow
 
+```mermaid
 flowchart LR
     User[User / Client] -->|Uploads Invoice Image| API[.NET 9 API]
     API -->|Convert to Base64| Ollama[Ollama Local AI]
     Ollama -->|Returns Structured JSON| API
     API -->|Persists Data| DB[(SQL Server 2025)]
     DB -->|Returns Result| User
+```
 
 ## 🚀 Quick Start
 
