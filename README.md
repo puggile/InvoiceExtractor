@@ -3,8 +3,6 @@
 A modern Intelligent Document Processing (IDP) solution powered by .NET 9 and Multimodal AI (OllamaQwen-VL).
 This project demonstrates how to move beyond legacy OCR templates by leveraging Vision Language Models (VLMs) to semantically understand and extract data from unstructured financial documents.
 
-![License](httpsimg.shields.iobadgelicense-MIT-blue.svg) ![.NET](httpsimg.shields.iobadge.NET-9.0-purple) ![Docker](httpsimg.shields.iobadgeDocker-Enabled-blue)
-
 ## 🏗 Architecture & Stack
 
 Designed with Vertical Slice Architecture principles and Cloud-Native readiness.
