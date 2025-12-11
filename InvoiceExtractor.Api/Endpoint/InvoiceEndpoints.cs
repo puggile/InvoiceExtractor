@@ -1,6 +1,7 @@
 ﻿using InvoiceExtractor.Api.Configuration;
 using InvoiceExtractor.Api.Database;
 using InvoiceExtractor.Api.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace InvoiceExtractor.Api.Endpoint;
@@ -14,7 +15,27 @@ public static class InvoiceEndpoints
                        .WithOpenApi()
                        .DisableAntiforgery();
 
+        group.MapGet("/", GetAllInvoices);
+
         group.MapPost("/analyze", AnalyzeInvoice);
+    }
+
+    private static async Task<IResult> GetAllInvoices(
+        ApplicationDbContext db,
+        ILoggerFactory loggerFactory)
+    {
+        var logger = loggerFactory.CreateLogger("InvoiceEndpoints.Get");
+
+        logger.LogInformation("Retrieving all invoices...");
+
+        var invoices = await db.Invoices
+            .AsNoTracking()
+            .OrderByDescending(i => i.CreatedAt)
+            .ToListAsync();
+
+        logger.LogInformation("Found {Count} invoices.", invoices.Count);
+
+        return Results.Ok(invoices);
     }
 
     private static async Task<IResult> AnalyzeInvoice(
