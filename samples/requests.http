@@ -1,0 +1,29 @@
+@hostname = localhost
+@port = 5033
+@host = http://{{hostname}}:{{port}}
+
+### Check Health (Scalar UI Page)
+GET {{host}}/scalar/v1 HTTP/1.1
+
+ 
+### Send invoice_01.jpg
+POST {{host}}/api/invoices/analyze HTTP/1.1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="invoice_01.jpg"
+Content-Type: image/jpeg
+
+< ./images/invoice_01.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### Send invoice_02.jpg
+POST {{host}}/api/invoices/analyze HTTP/1.1
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="invoice_02.jpg"
+Content-Type: image/jpeg
+
+< ./images/invoice_02.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--

@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     container_name: invoice-extractor-api
     ports:
-      - "5000:8080"
+      - "5033:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       # Sovrascriviamo la connessione DB per usare il nome del servizio 'db'

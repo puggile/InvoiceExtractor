@@ -9,6 +9,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvoiceExtractor.Tests", "tests\InvoiceExtractor.Tests\InvoiceExtractor.Tests.csproj", "{0B1FA63E-28B7-43B3-9086-5F8ACCAE2468}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{6C83A596-D32D-B35F-00DD-F0C99B673980}"
+	ProjectSection(SolutionItems) = preProject
+		samples\requests.http = samples\requests.http
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Images", "Images", "{197B43FD-7A0D-4A17-8954-3D22CFAA6962}"
+	ProjectSection(SolutionItems) = preProject
+		samples\images\invoice_01.jpg = samples\images\invoice_01.jpg
+		samples\images\invoice_02.jpg = samples\images\invoice_02.jpg
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,5 +60,9 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0B1FA63E-28B7-43B3-9086-5F8ACCAE2468} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{197B43FD-7A0D-4A17-8954-3D22CFAA6962} = {6C83A596-D32D-B35F-00DD-F0C99B673980}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DF77AE02-4B71-4AD2-87A3-9BE1E81AF8BF}
 	EndGlobalSection
 EndGlobal

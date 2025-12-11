@@ -60,3 +60,11 @@ The API will be available at:
 ```
 http://localhost:5000/scalar/v1
 ```
+
+### 3. Testing
+
+You can test the API immediately using the provided `.http` file (no Postman required).
+
+1. Open `samples/requests.http` in Visual Studio or VS Code (with REST Client extension).
+2. Click the "Send Request" link above the `GET`/`POST` command.
+3. Observe the structured JSON response extracted from the sample image.
